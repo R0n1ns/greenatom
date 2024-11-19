@@ -1,0 +1,42 @@
+1. Предварительные требования
+Перед началом убедитесь, что у вас установлено:
+
+Python 3.9+
+Poetry (или pip, если Poetry не используется)
+PostgreSQL (или другая поддерживаемая база данных)
+Дополнительно установите:
+Среду виртуализации, например, venv или virtualenv (если нужно).
+
+2. Склонируйте репозиторий
+git clone <URL репозитория>
+cd <имя директории репозитория>
+
+3. Настройка виртуальной среды
+Создайте и активируйте виртуальную среду:
+python -m venv venv
+source venv/bin/activate  # Для Linux/Mac
+venv\Scripts\activate     # Для Windows
+
+4. Установка зависимостей
+С использованием Poetry:
+poetry install
+С использованием pip:
+pip install -r requirements.txt
+
+5. Настройка базы данных
+Настройте подключение к базе данных в файле .env или в конфигурации.
+Пример содержания .env файла:
+DATABASE_URL=postgresql+asyncpg://<username>:<password>@<host>:<port>/<database_name>
+SECRET_KEY=<ваш секретный ключ>
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+Создайте схему базы данных
+alembic upgrade head
+6. Запуск сервера
+С помощью uvicorn:
+uvicorn main:app --reload
+
+Параметры:
+--host 0.0.0.0: делает приложение доступным по всем IP-адресам.
+--port 8000: задает порт для запуска (по умолчанию 8000).
