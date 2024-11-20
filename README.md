@@ -22,8 +22,8 @@
   <p><strong>Маршрут WebSocket:</strong></p>
   <ul>
       <li><code>/ws/chat</code>: создание подключения для обмена сообщениями.</li>
-      <li>Сообщения отправляются в формате json : {"message":"","username_to":""}</li>
-        <li>После отправкии сообщения приходит результат отправки в видеjson : {"status":"","error":""}</li>
+      <li>Сообщения отправляются в формате json : <code>{"message":"","username_to":""}</code></li>
+        <li>После отправкии сообщения приходит результат отправки в виде json : <code>{"status":"","error":""}</code></li>
   </ul>
   <p><strong>Функционал:</strong></p>
   <ul>
