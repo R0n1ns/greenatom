@@ -2,10 +2,10 @@ from fastapi import  Depends, HTTPException, status, APIRouter
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import  UserPD
-from db.queries import get_user, get_user_messages, block_user, unblock_user,get_db
-from routes.auth import oauth2_scheme
-from routes.utils import SECRET_KEY, ALGORITHM,ws_manager
+from app.db.models import UserPD, Token, CreateUserPD
+from app.db.queries import get_user, get_user_messages, block_user, unblock_user, get_db, create_admin
+from app.routes.auth import oauth2_scheme
+from app.routes.utils import SECRET_KEY, ALGORITHM, ws_manager, create_access_token
 
 admin_router = APIRouter()
 
@@ -39,7 +39,7 @@ async def getallactiveusers(current_user: UserPD = Depends(get_current_admin)):
     return ws_manager.get_active_users()
 
 
-@admin_router.get("/blockuser", summary="заблокировать пользователя", tags=["Команды админа"])
+@admin_router.post("/blockuser", summary="заблокировать пользователя", tags=["Команды админа"])
 async def blockuser(username: str, current_user: UserPD = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     try:
         await block_user(username, db)
@@ -48,7 +48,7 @@ async def blockuser(username: str, current_user: UserPD = Depends(get_current_ad
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@admin_router.get("/unblockuser", summary="разблокировать пользователя", tags=["Команды админа"])
+@admin_router.post("/unblockuser", summary="разблокировать пользователя", tags=["Команды админа"])
 async def unblockuser(username: str, current_user: UserPD = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     try:
         await unblock_user(username, db)
@@ -56,3 +56,11 @@ async def unblockuser(username: str, current_user: UserPD = Depends(get_current_
     except Exception:
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
+@admin_router.post("/register_admin", response_model=Token, tags=["Регистрация админа"], summary="Команды админа")
+async def register_admin(user: CreateUserPD, current_user: UserPD = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    db_user = await get_user(user.username, db)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    await create_admin(user, db)
+    access_token = create_access_token(data={"username": user.username, "is_admin": False})
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -6,11 +6,12 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_, update, and_, exists
 
-from db.models import User, CreateUserPD, ChatMessage, MessagePD
+from app.db.models import User, CreateUserPD, ChatMessage, MessagePD
 from dotenv import load_dotenv
-load_dotenv()
-SQLALCHEMY_DATABASE_URL = os.getenv('SQLALCHEMY_DATABASE_URL')
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+load_dotenv("app/.env")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 # Зависимость для подключения к базе данных
@@ -31,6 +32,13 @@ async def user_exists(username: str, db: AsyncSession) -> bool:
 
 async def create_user(user: CreateUserPD, db: AsyncSession):
     db_user = User(username=user.username, password=user.password, mail=user.mail, name=user.name)
+    db.add(db_user)
+    await db.commit()
+    await db.refresh(db_user)
+    return db_user
+
+async def create_admin(user: CreateUserPD, db: AsyncSession):
+    db_user = User(username=user.username, password=user.password, mail=user.mail, name=user.name,is_admin=True)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)

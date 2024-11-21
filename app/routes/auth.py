@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import Token, CreateUserPD
-from db.queries import get_user, create_user,get_db
-from routes.utils import create_access_token,  ACCESS_TOKEN_EXPIRE_MINUTES
+from app.db.models import Token, CreateUserPD
+from app.db.queries import get_user, create_user,get_db
+from app.routes.utils import create_access_token,  ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 auth_router = APIRouter()
@@ -23,6 +23,7 @@ async def register(user: CreateUserPD, db: AsyncSession = Depends(get_db)):
 @auth_router.post("/login", response_model=Token, tags=["Авторизация"], summary="Авторизация")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await get_user(form_data.username, db)
+    print(user)
     if not user or form_data.password != user.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

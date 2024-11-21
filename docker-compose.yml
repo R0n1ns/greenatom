@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    command: >
+      bash -c "until nc -z db 5432; do
+                echo 'Waiting for Postgres...';
+                sleep 1;
+              done;
+              alembic upgrade head && 
+              uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+       DATABASE_URL: "postgresql+asyncpg://postgres:test@db:5432/gr"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: gr
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

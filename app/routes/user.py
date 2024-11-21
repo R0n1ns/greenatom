@@ -2,10 +2,10 @@ from fastapi import  Depends, HTTPException, status, APIRouter
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import  UserPD
-from db.queries import get_user, get_user_messages, read_all_messages ,read_all_messages_from_user, get_db
-from routes.auth import oauth2_scheme
-from routes.utils import  SECRET_KEY, ALGORITHM
+from app.db.models import  UserPD
+from app.db.queries import get_user, get_user_messages, read_all_messages ,read_all_messages_from_user, get_db
+from app.routes.auth import oauth2_scheme
+from app.routes.utils import  SECRET_KEY, ALGORITHM
 
 user_router = APIRouter()
 
@@ -50,7 +50,7 @@ async def getnotreadedmessages(current_user: UserPD = Depends(get_current_user),
     return chats
 
 
-@user_router.get("/readnotreaded", summary="прочитать все непрочитанные сообщения", tags=["Получение истории сообщений"])
+@user_router.post("/readnotreaded", summary="прочитать все непрочитанные сообщения", tags=["Получение истории сообщений"])
 async def readnotreaded(current_user: UserPD = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         await read_all_messages(current_user.username, db)
@@ -59,7 +59,7 @@ async def readnotreaded(current_user: UserPD = Depends(get_current_user), db: As
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@user_router.get("/readnotreadedfromuser", summary="прочитать все непрочитанные сообщения от пользователя", tags=["Получение истории сообщений"])
+@user_router.post("/readnotreadedfromuser", summary="прочитать все непрочитанные сообщения от пользователя", tags=["Получение истории сообщений"])
 async def readnotreadedfromuser(user_from: str, current_user: UserPD = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         await read_all_messages_from_user(current_user.username, user_from, db)

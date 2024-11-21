@@ -8,13 +8,13 @@ from fastapi import status, WebSocket
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import  MessagePD
-from db.queries import add_message, read_message, is_blocked
+from app.db.models import  MessagePD
+from app.db.queries import add_message, read_message, is_blocked
 from dotenv import load_dotenv
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 # Функция создания токена
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -36,10 +36,9 @@ class ConnectionManager:
         self.active_connections[username] = websocket
 
     async def disconnect(self, username: str):
-        websocket = self.active_connections.get(username)
-        if websocket:
+        websocket = self.active_connections.pop(username, None)
+        if websocket and not websocket.client_state.closed:
             await websocket.close(code=status.WS_1000_NORMAL_CLOSURE)
-            self.active_connections.pop(username, None)
 
     async def broadcast(self, username_from: str, username_to: str, message: str, db: AsyncSession):
         if await is_blocked(username_from, db):

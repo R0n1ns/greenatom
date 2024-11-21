@@ -5,6 +5,3 @@ alembic
 psycopg2-binary
 uvicorn[standard]
 python-dotenv
-python-jose
-pydantic
-python-multipart
