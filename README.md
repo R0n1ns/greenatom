@@ -44,7 +44,13 @@
   </ul>
 
   <h3>4. Административные команды</h3>
-  <p><strong>Маршруты для администраторов:</strong></p>
+    <p><strong>Маршруты для администраторов:</strong></p>
+  <p>Автоматический админ,которого можно заблокировать ,после создания других:
+        username : admin
+        name : Admin User
+        mail : admin@example.com
+        password : securepassword
+</p>
   <ul>
       <li><code>/readuserchats</code>: получить все чаты конкретного пользователя.</li>
       <li><code>/getallactiveusers</code>: получить список активных пользователей.</li>
